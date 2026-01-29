@@ -1,5 +1,6 @@
 // #define K2_DEBUG_WARN
-#define K2_DEBUG_INFO
+//#define K2_DEBUG_INFO
+#define K2_DEBUG_VERBOSE
 
 /*
  * The mailbox driver (& framebuffer, display) for rpi3.
@@ -276,13 +277,19 @@ static int do_fb_init(struct fb_struct *fbs) {
         mbox[28]&=0x3FFFFFFF;  
         // Q6 quest: OS logo
         /* STUDENT_TODO: your code here */
+            fbs->fb = (void*)((unsigned long)mbox[28]); //set framebuffer
+
         fbs->width=mbox[5];
         /* STUDENT_TODO: your code here */
+        fbs->height = mbox[6]; //set height
         fbs->vwidth=mbox[10];
         fbs->vheight=mbox[11];        
         fbs->depth=mbox[20]; 
         fbs->isrgb=mbox[24];     // channel order
         /* STUDENT_TODO: your code here */
+
+        fbs->pitch = mbox[33]; // sets pitch
+
         if(fbs->pitch * fbs->vheight > mbox[29])  // possible that pitch*vheight < actual allocation
             {W("pitch %d x vheight %d!= mbox[29] %u", fbs->pitch, fbs->vheight, mbox[29]);BUG();}
         fbs->size = PGROUNDUP(fbs->pitch * fbs->vheight);  // roundup b/c we'll reserve pages for it
@@ -432,15 +439,34 @@ void fb_showpicture()
             // extract r,g,b from "pixel", then assign that to *ptr
             // if you color does not look right, check "isrgb" in the_fb
             /* STUDENT_TODO: your code here */
+
+            int offset = x * 4;
+
+            if(the_fb.isrgb){
+                ptr[offset + 0] = pixel[2];
+                ptr[offset + 1] = pixel[1];
+                ptr[offset + 2] = pixel[0];
+            }
+            else{
+                ptr[offset + 0] = pixel[0];
+                ptr[offset + 1] = pixel[1];
+                ptr[offset + 2] = pixel[2];
+            }
+            ptr[offset + 3] = 0xFF;
         }
         // advance ptr to the start of the next line of the pixels
         /* STUDENT_TODO: your code here */
+        ptr += the_fb.pitch;
     }
 
     // show text strings
     // quest: OS logo. 
     // adjust x/y so that the text starts from right below the picture     
     /* STUDENT_TODO: your code here */
+
+    x = (the_fb.vwidth - img_fb_width) / 2;
+    y = (the_fb.vheight - img_fb_height) / 2;
+
     fb_print(&x, &y, "UVA OS");    
     sprintf(res, " %dx%d", the_fb.width, the_fb.height); // debug info 
     fb_print(&x, &y, res);

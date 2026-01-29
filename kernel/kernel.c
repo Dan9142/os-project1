@@ -15,6 +15,8 @@ extern void donut_simple();    // donut.c
 extern void donut_text();      // donut.c
 
 void uart_send_string(char* str);
+void uart_init(void);
+void putc(void* p, char);
 
 struct cpu cpus[NCPU]; 
 

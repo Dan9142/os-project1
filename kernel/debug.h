@@ -20,7 +20,7 @@
 #define __K2_TRACEBUFFER__
 
 
-#ifndef CONFIG_GLOBAL_DEBUG_LEVEL
+#ifndef CONFIG_GLOBAL_DEBUG_LEVEL 
 #define CONFIG_GLOBAL_DEBUG_LEVEL 30 // default
 #endif
 
